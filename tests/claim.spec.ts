@@ -11,13 +11,9 @@ const LOGIN_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php/auth/
 
 async function login(page: Page) {
   await page.goto(LOGIN_URL);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="username"]').fill('Admin');
-  await page.waitForTimeout(5000);
   await page.locator('input[name="password"]').fill('admin123');
-  await page.waitForTimeout(5000);
   await page.locator('button[type="submit"]').click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/dashboard\/index/, { timeout: 30_000 });
 }
 
@@ -67,10 +63,8 @@ async function pickEmployee(page: Page, hint: string) {
 /** Klik menu Claim, lalu tab Assign Claim (form Create Claim Request). */
 async function openAssignClaim(page: Page) {
   await page.getByRole('link', { name: 'Claim' }).click();
-  await page.waitForTimeout(5000);
 
   await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Assign Claim' }).first().click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/claim\/assignClaim/);
   await expect(page.getByRole('heading', { name: 'Create Claim Request' })).toBeVisible();
 }
@@ -89,7 +83,6 @@ test.describe('Fitur Claim', { tag: ['@positive', '@functional'] }, () => {
 
     // Remarks
     await page.locator('textarea').fill(`Remark QA ${Date.now()}`);
-    await page.waitForTimeout(5000);
 
     // Klik button Create
     await page.getByRole('button', { name: 'Create' }).click();
@@ -113,7 +106,6 @@ test.describe('Fitur Claim - Negatif case', { tag: ['@negative', '@validation'] 
     await page.locator('textarea').fill(`Remark QA ${Date.now()}`);
 
     await page.getByRole('button', { name: 'Create' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(
       fieldByLabel(page, 'Employee Name').locator('.oxd-input-field-error-message'),
@@ -127,7 +119,6 @@ test.describe('Fitur Claim - Negatif case', { tag: ['@negative', '@validation'] 
     await page.locator('textarea').fill(`Remark QA ${Date.now()}`);
 
     await page.getByRole('button', { name: 'Create' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(fieldByLabel(page, 'Event').locator('.oxd-input-field-error-message')).toHaveText(
       'Required',
@@ -141,7 +132,6 @@ test.describe('Fitur Claim - Negatif case', { tag: ['@negative', '@validation'] 
     await page.locator('textarea').fill(`Remark QA ${Date.now()}`);
 
     await page.getByRole('button', { name: 'Create' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(fieldByLabel(page, 'Currency').locator('.oxd-input-field-error-message')).toHaveText(
       'Required',

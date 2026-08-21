@@ -48,12 +48,9 @@ async function createEmployee(page: Page) {
   const lastName = 'Leave';
 
   await page.goto(ADD_EMPLOYEE_URL);
-  await page.waitForTimeout(5000);
   await expect(page.getByRole('heading', { name: 'Add Employee' })).toBeVisible();
   await page.locator('input[name="firstName"]').fill(firstName);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="lastName"]').fill(lastName);
-  await page.waitForTimeout(5000);
 
   // Employee Id auto-generate-nya kadang bentrok dengan pegawai yang sudah ada di
   // demo ("Employee Id already exists") dan bikin Save gagal. Field ini opsional,
@@ -64,10 +61,8 @@ async function createEmployee(page: Page) {
     .locator('input');
   await expect(employeeId).not.toHaveValue('');
   await employeeId.fill('');
-  await page.waitForTimeout(5000);
 
   await page.getByRole('button', { name: 'Save' }).click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/pim\/viewPersonalDetails\/empNumber\/\d+/, { timeout: 30_000 });
 
   return { firstName, fullName: new RegExp(`${firstName}\\s+${lastName}`, 'i') };
@@ -75,13 +70,9 @@ async function createEmployee(page: Page) {
 
 async function login(page: Page) {
   await page.goto(LOGIN_URL);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="username"]').fill('Admin');
-  await page.waitForTimeout(5000);
   await page.locator('input[name="password"]').fill('admin123');
-  await page.waitForTimeout(5000);
   await page.locator('button[type="submit"]').click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/dashboard\/index/, { timeout: 30_000 });
 }
 
@@ -117,11 +108,9 @@ async function selectOption(page: Page, label: string, option: string) {
 /** Klik menu Leave -> Assign Leave. */
 async function openAssignLeave(page: Page) {
   await page.getByRole('link', { name: 'Leave' }).click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/leave\/viewLeaveList/);
 
   await page.getByRole('link', { name: 'Assign Leave' }).click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/leave\/assignLeave/);
   await expect(page.getByRole('heading', { name: 'Assign Leave' })).toBeVisible();
 }
@@ -130,9 +119,7 @@ async function openAssignLeave(page: Page) {
 async function pickEmployee(page: Page, hint: string, name: RegExp) {
   const input = page.getByPlaceholder('Type for hints...');
   await input.fill(hint);
-  await page.waitForTimeout(5000);
   await page.locator('.oxd-autocomplete-dropdown [role="option"]', { hasText: name }).first().click();
-  await page.waitForTimeout(5000);
   await expect(input).toHaveValue(name);
 }
 
@@ -147,10 +134,8 @@ async function setDateRange(page: Page, from: Date, to: Date) {
 
   const fromValue = await fillDate(fromInput, from);
   await outside.click();
-  await page.waitForTimeout(5000);
   const toValue = await fillDate(toInput, to);
   await outside.click();
-  await page.waitForTimeout(5000);
 
   await expect(fromInput).toHaveValue(fromValue);
   await expect(toInput).toHaveValue(toValue);
@@ -159,7 +144,6 @@ async function setDateRange(page: Page, from: Date, to: Date) {
 /** Submit form dan setujui konfirmasi kalau balance pegawainya tidak mencukupi. */
 async function assignLeave(page: Page, comment: string) {
   await page.locator('textarea').fill(comment);
-  await page.waitForTimeout(5000);
   await page.getByRole('button', { name: 'Assign' }).click();
 
   // Jeda sengaja dilewati dari sini sampai pengecekan toast: toast OrangeHRM cuma

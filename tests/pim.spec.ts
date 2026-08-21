@@ -22,20 +22,15 @@ const randomName = (prefix: string) => `${prefix}${randomString(5)}`;
 
 async function login(page: Page) {
   await page.goto(LOGIN_URL);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="username"]').fill('Admin');
-  await page.waitForTimeout(5000);
   await page.locator('input[name="password"]').fill('admin123');
-  await page.waitForTimeout(5000);
   await page.locator('button[type="submit"]').click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/dashboard\/index/, { timeout: 30_000 });
 }
 
 /** Klik menu PIM di sidebar. */
 async function openPim(page: Page) {
   await page.getByRole('link', { name: 'PIM' }).click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/pim\/viewEmployeeList/);
   await expect(page.getByRole('heading', { name: 'PIM' })).toBeVisible();
 }
@@ -82,7 +77,6 @@ async function addButtonNear(page: Page, label: string) {
     .locator('button:has(.bi-plus)')
     .first()
     .click();
-    await page.waitForTimeout(5000);
 }
 
 /**
@@ -109,11 +103,8 @@ async function fillEmployeeName(page: Page) {
   const lastName = randomName('Test');
 
   await page.locator('input[name="firstName"]').fill(firstName);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="middleName"]').fill(middleName);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="lastName"]').fill(lastName);
-  await page.waitForTimeout(5000);
 
   return { firstName, middleName, lastName };
 }
@@ -127,7 +118,6 @@ test.describe('Fitur PIM', { tag: ['@positive', '@functional'] }, () => {
   test('User add new employee', async ({ page }) => {
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Employee' })).toBeVisible();
 
     // Upload picture
@@ -145,11 +135,9 @@ test.describe('Fitur PIM', { tag: ['@positive', '@functional'] }, () => {
     const employeeId = fieldByLabel(page, 'Employee Id').locator('input');
     await expect(employeeId).not.toHaveValue('');
     await employeeId.fill(randomString(4));
-    await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi lewat redirect ke halaman Personal Details pegawai baru.
     // Toast sukses tidak dipakai sebagai penanda: umurnya cuma ~3 detik, jadi bisa
@@ -167,7 +155,6 @@ test.describe('Fitur PIM', { tag: ['@positive', '@functional'] }, () => {
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Employee' })).toBeVisible();
 
     // Nama pegawai tetap wajib diisi walau fokus test-nya di login details
@@ -175,23 +162,18 @@ test.describe('Fitur PIM', { tag: ['@positive', '@functional'] }, () => {
 
     // Nyalakan toggle Create Login Details
     await page.locator('.oxd-switch-input').click();
-    await page.waitForTimeout(5000);
     await expect(page.getByText('Create Login Details')).toBeVisible();
 
     // Input Username
     await fieldByLabel(page, 'Username').locator('input').fill(username);
-    await page.waitForTimeout(5000);
 
     // Input Password + Confirm Password
     const passwordFields = page.locator('input[type="password"]');
     await passwordFields.nth(0).fill(password);
-    await page.waitForTimeout(5000);
     await passwordFields.nth(1).fill(password);
-    await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: pegawai baru tersimpan (redirect ke Personal Details)
     await expect(page).toHaveURL(/\/pim\/viewPersonalDetails\/empNumber\/\d+/, { timeout: 30_000 });
@@ -209,18 +191,15 @@ test.describe('Fitur PIM - Reports', { tag: ['@positive', '@functional'] }, () =
 
     // Klik menu Reports di topbar
     await page.getByRole('link', { name: 'Reports' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/pim\/viewDefinedPredefinedReports/);
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/pim\/definePredefinedReport/);
     await expect(page.getByRole('heading', { name: 'Add Report' })).toBeVisible();
 
     // Input Report Name (random supaya tidak bentrok dengan report yang sudah ada)
     await page.getByPlaceholder('Type here ...').fill(reportName);
-    await page.waitForTimeout(5000);
 
     // Selection Criteria = Pay Grade, lalu klik button "+" untuk menambahkannya
     await selectOption(page, 'Selection Criteria', 'Pay Grade');
@@ -239,7 +218,6 @@ test.describe('Fitur PIM - Reports', { tag: ['@positive', '@functional'] }, () =
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: setelah Save, OrangeHRM langsung menjalankan report-nya
     // (redirect ke displayPredefinedReport/<id>), bukan kembali ke list —
@@ -249,7 +227,6 @@ test.describe('Fitur PIM - Reports', { tag: ['@positive', '@functional'] }, () =
 
     // Report baru juga harus tercatat di list Reports
     await page.getByRole('link', { name: 'Reports' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/pim\/viewDefinedPredefinedReports/);
     await expect(page.locator('.oxd-table-card', { hasText: reportName })).toBeVisible();
   });
@@ -279,7 +256,6 @@ test.describe('Fitur PIM - Negatif case', { tag: ['@negative', '@validation'] },
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Employee' })).toBeVisible();
 
     // Nama diisi valid supaya satu-satunya yang menahan submit adalah Employee Id
@@ -290,11 +266,9 @@ test.describe('Fitur PIM - Negatif case', { tag: ['@negative', '@validation'] },
     const employeeId = fieldByLabel(page, 'Employee Id').locator('input');
     await expect(employeeId).not.toHaveValue('');
     await employeeId.fill(existingId);
-    await page.waitForTimeout(5000);
 
     // Cek duplikat dijalankan di server saat submit — blur saja tidak selalu memicunya
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // System menampilkan validasi, dan pegawainya tidak jadi dibuat
     await expect(fieldByLabel(page, 'Employee Id').locator('.oxd-input-field-error-message')).toHaveText(

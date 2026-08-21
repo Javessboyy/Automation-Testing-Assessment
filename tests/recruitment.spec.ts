@@ -72,13 +72,9 @@ async function pickFirstHint(page: Page, hint: string) {
 
 async function login(page: Page) {
   await page.goto(LOGIN_URL);
-  await page.waitForTimeout(5000);
   await page.locator('input[name="username"]').fill('Admin');
-  await page.waitForTimeout(5000);
   await page.locator('input[name="password"]').fill('admin123');
-  await page.waitForTimeout(5000);
   await page.locator('button[type="submit"]').click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/dashboard\/index/, { timeout: 30_000 });
 }
 
@@ -147,7 +143,6 @@ async function pickFirstOption(page: Page, label: string): Promise<string> {
 /** Klik menu Recruitment di sidebar. */
 async function openRecruitment(page: Page) {
   await page.getByRole('link', { name: 'Recruitment' }).click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/recruitment\/viewCandidates/);
   await expect(page.getByRole('heading', { name: 'Recruitment' })).toBeVisible();
 }
@@ -164,17 +159,13 @@ test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => 
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/recruitment\/addCandidate/);
     await expect(page.getByRole('heading', { name: 'Add Candidate' })).toBeVisible();
 
     // Full Name (first / middle / last)
     await page.locator('input[name="firstName"]').fill(firstName);
-    await page.waitForTimeout(5000);
     await page.locator('input[name="middleName"]').fill(`Mid${randomString(4)}`);
-    await page.waitForTimeout(5000);
     await page.locator('input[name="lastName"]').fill(lastName);
-    await page.waitForTimeout(5000);
 
     // Vacancy: data demo publik ini berubah-ubah, jadi ambil opsi pertama
     // yang tersedia alih-alih nama vacancy tetap.
@@ -182,11 +173,9 @@ test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => 
 
     // Email dan Contact Number
     await fieldByLabel(page, 'Email').locator('input').fill(`${randomString(8)}@example.com`);
-    await page.waitForTimeout(5000);
     await fieldByLabel(page, 'Contact Number')
       .locator('input')
       .fill(`08${Math.floor(1_000_000_00 + Math.random() * 8_999_999_99)}`);
-      await page.waitForTimeout(5000);
 
     // Upload Resume
     await page.locator('input[type="file"]').setInputFiles({
@@ -197,31 +186,25 @@ test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => 
 
     // Keywords
     await page.getByPlaceholder('Enter comma seperated words...').fill('qa,automation,playwright');
-    await page.waitForTimeout(5000);
 
     // Date of Application: hari ini. Datepicker ditutup dengan klik ke luar —
     // menutupnya pakai Escape membatalkan input dan tanggalnya balik kosong.
     const dateInput = fieldByLabel(page, 'Date of Application').locator('input');
     const dateValue = await fillDate(dateInput, new Date());
     await page.getByRole('heading', { name: 'Add Candidate' }).click();
-    await page.waitForTimeout(5000);
     await expect(dateInput).toHaveValue(dateValue);
 
     // Notes
     await page.locator('textarea').fill(`Catatan QA ${Date.now()}`);
-    await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: kandidat tersimpan dan muncul di list Candidates
     await expect(page).toHaveURL(/\/recruitment\/addCandidate\/\d+/, { timeout: 30_000 });
     await openRecruitment(page);
     await fieldByLabel(page, 'Candidate Name').locator('input').fill(firstName);
-    await page.waitForTimeout(5000);
     await page.getByRole('button', { name: 'Search' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.locator('.oxd-table-card', { hasText: lastName })).toBeVisible();
   });
 
@@ -230,25 +213,21 @@ test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => 
 
     // Klik menu Vacancies
     await page.getByRole('link', { name: 'Vacancies' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/recruitment\/viewJobVacancy/);
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/recruitment\/addJobVacancy/);
     await expect(page.getByRole('heading', { name: 'Add Vacancy' })).toBeVisible();
 
     // Vacancy Name
     await fieldByLabel(page, 'Vacancy Name').locator('input').fill(vacancyName);
-    await page.waitForTimeout(5000);
 
     // Job Title
     await selectOption(page, 'Job Title', JOB_TITLE);
 
     // Description
     await page.getByPlaceholder('Type description here').fill(`Deskripsi QA ${Date.now()}`);
-    await page.waitForTimeout(5000);
 
     // Hiring Manager: ketik "a", pilih dari suggestion yang muncul
     await pickFirstHint(page, 'a');
@@ -257,20 +236,16 @@ test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => 
     await fieldByLabel(page, 'Number of Positions')
       .locator('input')
       .fill(String(1 + Math.floor(Math.random() * 9)));
-      await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: vacancy tersimpan dan muncul di list Vacancies
     await expect(page).toHaveURL(/\/recruitment\/addJobVacancy\/\d+/, { timeout: 30_000 });
     await page.getByRole('link', { name: 'Vacancies' }).click();
-    await page.waitForTimeout(5000);
     // Filter "Vacancy" di list ini berupa dropdown, bukan input teks
     await selectOption(page, 'Vacancy', vacancyName);
     await page.getByRole('button', { name: 'Search' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.locator('.oxd-table-card', { hasText: vacancyName })).toBeVisible();
   });
 });
@@ -284,24 +259,20 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   /** Buka form Add Candidate. */
   async function openAddCandidate(page: Page) {
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Candidate' })).toBeVisible();
   }
 
   /** Buka form Add Vacancy lewat menu Vacancies. */
   async function openAddVacancy(page: Page) {
     await page.getByRole('link', { name: 'Vacancies' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/recruitment\/viewJobVacancy/);
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Vacancy' })).toBeVisible();
   }
 
   test('User enter First Name with empty value on Add Candidate', async ({ page }) => {
     await openAddCandidate(page);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(errorOf(page.locator('input[name="firstName"]'))).toHaveText('Required');
   });
@@ -309,7 +280,6 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Last Name with empty value on Add Candidate', async ({ page }) => {
     await openAddCandidate(page);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(errorOf(page.locator('input[name="lastName"]'))).toHaveText('Required');
   });
@@ -317,7 +287,6 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Email with empty value on Add Candidate', async ({ page }) => {
     await openAddCandidate(page);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(fieldByLabel(page, 'Email').locator('.oxd-input-field-error-message')).toHaveText(
       'Required',
@@ -327,7 +296,6 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Vacancy Name with empty value on Add Vacancies', async ({ page }) => {
     await openAddVacancy(page);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(
       fieldByLabel(page, 'Vacancy Name').locator('.oxd-input-field-error-message'),
@@ -337,7 +305,6 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Job Tittle with empty value on Add Vacancies', async ({ page }) => {
     await openAddVacancy(page);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(fieldByLabel(page, 'Job Title').locator('.oxd-input-field-error-message')).toHaveText(
       'Required',
@@ -347,7 +314,6 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Hiring Manager with empty value on Add Vacancies', async ({ page }) => {
     await openAddVacancy(page);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(
       fieldByLabel(page, 'Hiring Manager').locator('.oxd-input-field-error-message'),
@@ -357,9 +323,7 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Hiring Manager with invalid value on Add Vacancies', async ({ page }) => {
     await openAddVacancy(page);
     await page.getByPlaceholder('Type for hints...').fill('123456778');
-    await page.waitForTimeout(5000);
     await page.getByRole('heading', { name: 'Add Vacancy' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(
       fieldByLabel(page, 'Hiring Manager').locator('.oxd-input-field-error-message'),
@@ -369,9 +333,7 @@ test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validat
   test('User enter Number of Positions with Alphanumeric value on Add Vacancies', async ({ page }) => {
     await openAddVacancy(page);
     await fieldByLabel(page, 'Number of Positions').locator('input').fill('%$#');
-    await page.waitForTimeout(5000);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(
       fieldByLabel(page, 'Number of Positions').locator('.oxd-input-field-error-message'),
