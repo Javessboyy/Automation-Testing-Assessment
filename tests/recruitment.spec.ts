@@ -8,7 +8,6 @@ test.afterEach(async ({ page }) => {
 
 
 const LOGIN_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php/auth/login';
-const VACANCY = 'Senior QA Lead';
 // Ejaan di data demo memang begitu ("Automaton", bukan "Automation")
 const JOB_TITLE = 'Automaton Tester';
 
@@ -119,6 +118,32 @@ async function selectOption(page: Page, label: string, option: string) {
   await pickFromSelect(fieldByLabel(page, label).locator('.oxd-select-wrapper'), option);
 }
 
+/**
+ * Pilih opsi pertama yang tersedia (selain placeholder "-- Select --") dan
+ * kembalikan namanya. Dipakai untuk field yang isi listnya bergantung pada data
+ * demo publik — vacancy yang di-hardcode ("Senior QA Lead") pernah hilang dari
+ * instance ini, sama seperti kasus nama pegawai di pickFirstHint.
+ */
+async function pickFirstOption(page: Page, label: string): Promise<string> {
+  const wrapper = fieldByLabel(page, label).locator('.oxd-select-wrapper');
+  const value = wrapper.locator('.oxd-select-text-input');
+  let picked = '';
+
+  await expect(async () => {
+    await wrapper.locator('.oxd-select-text').click();
+    const option = wrapper
+      .locator('.oxd-select-dropdown [role="option"]')
+      .filter({ hasNotText: '-- Select --' })
+      .first();
+    await expect(option).toBeVisible({ timeout: 5_000 });
+    picked = (await option.innerText()).trim();
+    await option.click({ timeout: 3_000 });
+    await expect(value).toHaveText(picked, { timeout: 2_000 });
+  }).toPass({ timeout: 20_000 });
+
+  return picked;
+}
+
 /** Klik menu Recruitment di sidebar. */
 async function openRecruitment(page: Page) {
   await page.getByRole('link', { name: 'Recruitment' }).click();
@@ -151,8 +176,9 @@ test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => 
     await page.locator('input[name="lastName"]').fill(lastName);
     await page.waitForTimeout(5000);
 
-    // Vacancy
-    await selectOption(page, 'Vacancy', VACANCY);
+    // Vacancy: data demo publik ini berubah-ubah, jadi ambil opsi pertama
+    // yang tersedia alih-alih nama vacancy tetap.
+    await pickFirstOption(page, 'Vacancy');
 
     // Email dan Contact Number
     await fieldByLabel(page, 'Email').locator('input').fill(`${randomString(8)}@example.com`);
