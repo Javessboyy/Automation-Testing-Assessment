@@ -161,8 +161,9 @@ async function assignLeave(page: Page, comment: string) {
   await page.locator('textarea').fill(comment);
   await page.waitForTimeout(5000);
   await page.getByRole('button', { name: 'Assign' }).click();
-  await page.waitForTimeout(5000);
 
+  // Jeda sengaja dilewati dari sini sampai pengecekan toast: toast OrangeHRM cuma
+  // tampil ~3 detik, menunggu 5 detik dulu bikin toast-nya keburu hilang.
   // Balance pegawai demo sering tidak mencukupi -> muncul dialog "Confirm Leave
   // Assignment" yang harus di-Ok dulu sebelum data tersimpan.
   const confirm = page.getByRole('button', { name: 'Ok' });

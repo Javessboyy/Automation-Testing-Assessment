@@ -15,20 +15,18 @@ let username = `qauser${Date.now()}`;
 
 async function login(page: Page) {
   await page.goto(LOGIN_URL);
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(5000)
   await page.locator('input[name="username"]').fill('Admin');
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(5000)
   await page.locator('input[name="password"]').fill('admin123');
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(5000)
   await page.locator('button[type="submit"]').click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/dashboard\/index/, { timeout: 30_000 });
 }
 
 /** Buka menu Admin -> System Users. */
 async function openAdmin(page: Page) {
   await page.getByRole('link', { name: 'Admin' }).click();
-  await page.waitForTimeout(5000);
   await expect(page).toHaveURL(/\/admin\/viewSystemUsers/);
   await expect(page.getByRole('heading', { name: 'System Users' })).toBeVisible();
 }
@@ -44,9 +42,7 @@ function fieldByLabel(page: Page, label: string) {
 async function selectOption(page: Page, label: string, option: string) {
   const field = fieldByLabel(page, label);
   await field.locator('.oxd-select-text').click();
-  await page.waitForTimeout(5000);
   await page.locator('.oxd-select-dropdown [role="option"]', { hasText: option }).first().click();
-  await page.waitForTimeout(5000);
   await expect(field.locator('.oxd-select-text-input')).toHaveText(option);
 }
 
@@ -86,7 +82,6 @@ async function searchUser(page: Page, name: string) {
   const input = fieldByLabel(page, 'Username').locator('input');
   await expect(input).toBeEnabled();
   await input.fill(name);
-  await page.waitForTimeout(5000);
   // Tunggu response API-nya, bukan sekadar klik — tabel di-render ulang secara async
   await Promise.all([
     page.waitForResponse(
@@ -107,7 +102,6 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
   test('User add new users on user management', async ({ page }) => {
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add User' })).toBeVisible();
 
     // User Role = Admin
@@ -121,18 +115,14 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
 
     // Username (random supaya tidak bentrok dengan user yang sudah ada)
     await fieldByLabel(page, 'Username').locator('input').fill(username);
-    await page.waitForTimeout(5000);
 
     // Password + Confirm Password
     const passwordFields = page.locator('input[type="password"]');
     await passwordFields.nth(0).fill(PASSWORD);
-    await page.waitForTimeout(5000);
     await passwordFields.nth(1).fill(PASSWORD);
-    await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: kembali ke list dan user baru muncul di hasil pencarian
     await expect(page).toHaveURL(/\/admin\/viewSystemUsers/, { timeout: 30_000 });
@@ -151,11 +141,9 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
 
     // Scroll sekali supaya barisnya masuk viewport
     await page.mouse.wheel(0, 500);
-    await page.waitForTimeout(5000);
 
     // Klik button edit (icon pencil)
     await row.locator('.oxd-icon.bi-pencil-fill').click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Edit User' })).toBeVisible();
 
     // Form ini memuat data secara async, jadi tunggu nilainya terisi dulu — kalau
@@ -163,7 +151,6 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
     const usernameInput = fieldByLabel(page, 'Username').locator('input');
     await expect(usernameInput).not.toHaveValue('');
     await usernameInput.fill(newUsername);
-    await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
@@ -177,7 +164,6 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
     // Cari user hasil test Add, lalu klik button delete (icon trash)
     const row = await searchUser(page, username);
     await row.locator('.oxd-icon.bi-trash').click();
-    await page.waitForTimeout(5000);
 
     // Klik button konfirmasi "Yes, Delete"
     await expect(page.getByRole('button', { name: 'Yes, Delete' })).toBeVisible();
@@ -200,20 +186,16 @@ test.describe('Fitur Admin - Job', { tag: '@positive' }, () => {
 
     // Klik menu Job -> Job Categories (dropdown di topbar)
     await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
-    await page.waitForTimeout(5000);
     await page.getByRole('menuitem', { name: 'Job Categories' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/admin\/jobCategory/);
     await expect(page.getByRole('heading', { name: 'Job Categories' })).toBeVisible();
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Job Category' })).toBeVisible();
 
     // Input Name (random supaya tidak bentrok dengan kategori yang sudah ada)
     await fieldByLabel(page, 'Name').locator('input').fill(categoryName);
-    await page.waitForTimeout(5000);
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
@@ -232,7 +214,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add User' })).toBeVisible();
   });
 
@@ -241,7 +222,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('User add User use already Exists', async ({ page }) => {
     await fieldByLabel(page, 'Username').locator('input').fill('admin');
-    await page.waitForTimeout(5000);
     await blur(page);
 
     await expect(fieldByLabel(page, 'Username').locator('.oxd-input-field-error-message')).toHaveText(
@@ -251,7 +231,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('User add user use Password without any numeric character', async ({ page }) => {
     await fieldByLabel(page, 'Password').locator('input').fill('sepakbola');
-    await page.waitForTimeout(5000);
     await blur(page);
 
     await expect(fieldByLabel(page, 'Password').locator('.oxd-input-field-error-message')).toHaveText(
@@ -261,7 +240,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('user enters a username with less than 5 characters', async ({ page }) => {
     await fieldByLabel(page, 'Username').locator('input').fill('1');
-    await page.waitForTimeout(5000);
     await blur(page);
 
     await expect(fieldByLabel(page, 'Username').locator('.oxd-input-field-error-message')).toHaveText(
@@ -271,7 +249,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('User enter username with empty value', async ({ page }) => {
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     await expect(fieldByLabel(page, 'Username').locator('.oxd-input-field-error-message')).toHaveText(
       'Required',
@@ -280,7 +257,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('User enter password with less than 7 characters', async ({ page }) => {
     await fieldByLabel(page, 'Password').locator('input').fill('sep');
-    await page.waitForTimeout(5000);
     await blur(page);
 
     await expect(fieldByLabel(page, 'Password').locator('.oxd-input-field-error-message')).toHaveText(
@@ -290,9 +266,7 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('user entered a confirmation password that does not match the password.', async ({ page }) => {
     await fieldByLabel(page, 'Password').locator('input').fill('Sepakbola12');
-    await page.waitForTimeout(5000);
     await fieldByLabel(page, 'Confirm Password').locator('input').fill('Sap');
-    await page.waitForTimeout(5000);
     await blur(page);
 
     await expect(
@@ -302,7 +276,6 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
 
   test('user enters the name of an unregistered employee.', async ({ page }) => {
     await page.getByPlaceholder('Type for hints...').fill('+++');
-    await page.waitForTimeout(5000);
     await blur(page);
 
     await expect(
@@ -318,14 +291,11 @@ test.describe('Fitur Admin - Negatif case Work Shift', { tag: '@negative' }, () 
 
     // Klik menu Job -> Work Shifts
     await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
-    await page.waitForTimeout(5000);
     await page.getByRole('menuitem', { name: 'Work Shifts' }).click();
-    await page.waitForTimeout(5000);
     await expect(page).toHaveURL(/\/admin\/workShift/);
 
     // Klik button Add
     await page.getByRole('button', { name: 'Add' }).click();
-    await page.waitForTimeout(5000);
     await expect(page.getByRole('heading', { name: 'Add Work Shift' })).toBeVisible();
 
     // From 09:00 AM, To 05:00 AM (lebih awal dari From).
@@ -333,13 +303,9 @@ test.describe('Fitur Admin - Negatif case Work Shift', { tag: '@negative' }, () 
     const times = page.locator('input[placeholder="hh:mm"]');
     const outside = page.getByRole('heading', { name: 'Add Work Shift' });
     await times.first().fill('09:00 AM');
-    await page.waitForTimeout(5000);
     await outside.click();
-    await page.waitForTimeout(5000);
     await times.nth(1).fill('05:00 AM');
-    await page.waitForTimeout(5000);
     await outside.click();
-    await page.waitForTimeout(5000);
 
     // System menampilkan validasi
     await expect(page.locator('.oxd-input-field-error-message')).toHaveText(
