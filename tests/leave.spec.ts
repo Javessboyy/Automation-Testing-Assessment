@@ -168,7 +168,6 @@ async function assignLeave(page: Page, comment: string) {
   const confirm = page.getByRole('button', { name: 'Ok' });
   await confirm.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
   if (await confirm.isVisible()) await confirm.click();
-  await page.waitForTimeout(5000);
 
   await expect(page.locator('.oxd-toast')).toContainText(/Successfully Saved/i, { timeout: 20_000 });
 }

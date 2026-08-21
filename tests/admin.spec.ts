@@ -167,7 +167,6 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: toast sukses dan kembali ke list System Users
     await expect(page.locator('.oxd-toast')).toContainText(/Successfully Updated/i);
@@ -183,7 +182,6 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
     // Klik button konfirmasi "Yes, Delete"
     await expect(page.getByRole('button', { name: 'Yes, Delete' })).toBeVisible();
     await page.getByRole('button', { name: 'Yes, Delete' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: toast sukses dan user sudah tidak ada di list
     await expect(page.locator('.oxd-toast')).toContainText(/Successfully Deleted/i);
@@ -219,7 +217,6 @@ test.describe('Fitur Admin - Job', { tag: '@positive' }, () => {
 
     // Klik button Save
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(5000);
 
     // Verifikasi: toast sukses dan kategori baru muncul di list
     await expect(page.locator('.oxd-toast')).toContainText(/Successfully Saved/i);
