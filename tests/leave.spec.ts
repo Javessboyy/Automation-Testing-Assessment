@@ -173,7 +173,7 @@ async function assignLeave(page: Page, comment: string) {
   await expect(page.locator('.oxd-toast')).toContainText(/Successfully Saved/i, { timeout: 20_000 });
 }
 
-test.describe('Fitur Leave', { tag: '@positive' }, () => {
+test.describe('Fitur Leave', { tag: ['@positive', '@functional'] }, () => {
   let employee: { firstName: string; fullName: RegExp };
 
   test.beforeEach(async ({ page }) => {

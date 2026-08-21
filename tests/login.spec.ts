@@ -28,7 +28,7 @@ test.describe('OrangeHRM - Halaman Login', { tag: '@positive' }, () => {
   //   await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
   // });
 
-  test('User Login with valid Credential', async ({ page }) => {
+  test('User Login with valid Credential', { tag: '@functional' }, async ({ page }) => {
     await page.goto(LOGIN_URL);
     await page.waitForTimeout(5000);
 
@@ -51,7 +51,7 @@ test.describe('Fitur Negatif case Login', { tag: '@negative' }, () => {
     await page.waitForTimeout(5000);
   });
 
-  test('Login with use wrong username', async ({ page }) => {
+  test('Login with use wrong username', { tag: '@functional' }, async ({ page }) => {
     await page.locator('input[name="username"]').fill('123');
     await page.waitForTimeout(5000);
     await page.locator('input[name="password"]').fill('admin123');
@@ -65,7 +65,7 @@ test.describe('Fitur Negatif case Login', { tag: '@negative' }, () => {
     await expect(page).toHaveURL(LOGIN_URL);
   });
 
-  test('Login with use wrong password', async ({ page }) => {
+  test('Login with use wrong password', { tag: '@functional' }, async ({ page }) => {
     await page.locator('input[name="username"]').fill('admin');
     await page.waitForTimeout(5000);
     await page.locator('input[name="password"]').fill('admin1233');
@@ -79,7 +79,7 @@ test.describe('Fitur Negatif case Login', { tag: '@negative' }, () => {
     await expect(page).toHaveURL(LOGIN_URL);
   });
 
-  test('Users are looking for features that are not on the menu', async ({ page }) => {
+  test('Users are looking for features that are not on the menu', { tag: '@functional' }, async ({ page }) => {
     await page.locator('input[name="username"]').fill('Admin');
     await page.waitForTimeout(5000);
     await page.locator('input[name="password"]').fill('admin123');
@@ -96,7 +96,7 @@ test.describe('Fitur Negatif case Login', { tag: '@negative' }, () => {
     await expect(page.locator('.oxd-main-menu-item')).toHaveCount(0);
   });
 
-  test('Login with empty username and password', async ({ page }) => {
+  test('Login with empty username and password', { tag: '@validation' }, async ({ page }) => {
     await page.locator('button[type="submit"]').click();
     await page.waitForTimeout(5000);
 

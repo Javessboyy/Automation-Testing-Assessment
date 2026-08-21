@@ -127,7 +127,7 @@ async function openRecruitment(page: Page) {
   await expect(page.getByRole('heading', { name: 'Recruitment' })).toBeVisible();
 }
 
-test.describe('Fitur Recruitment', { tag: '@positive' }, () => {
+test.describe('Fitur Recruitment', { tag: ['@positive', '@functional'] }, () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await openRecruitment(page);
@@ -249,7 +249,7 @@ test.describe('Fitur Recruitment', { tag: '@positive' }, () => {
   });
 });
 
-test.describe('Fitur Recruitment - Negatif case', { tag: '@negative' }, () => {
+test.describe('Fitur Recruitment - Negatif case', { tag: ['@negative', '@validation'] }, () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await openRecruitment(page);

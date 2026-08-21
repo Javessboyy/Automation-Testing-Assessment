@@ -30,7 +30,10 @@ export default defineConfig({
      tetap lanjut begitu kondisinya terpenuhi, angkanya cuma batas sebelum gagal. */
   expect: { timeout: 30_000 },
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['allure-playwright', { resultsDir: 'allure-results' }],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */

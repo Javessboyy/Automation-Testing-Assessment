@@ -7,7 +7,11 @@
     "test": "playwright test",
     "test:positive": "playwright test --grep @positive",
     "test:negative": "playwright test --grep @negative",
-    "test:report": "playwright show-report"
+    "test:functional": "playwright test --grep @functional",
+    "test:validation": "playwright test --grep @validation",
+    "test:report": "playwright show-report",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report"
   },
   "repository": {
     "type": "git",
@@ -23,6 +27,8 @@
   "homepage": "https://github.com/Javessboyy/Automation-Testing-Assessment#readme",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@types/node": "^26.2.0"
+    "@types/node": "^26.2.0",
+    "allure-commandline": "^2.43.0",
+    "allure-playwright": "^3.10.2"
   }
 }

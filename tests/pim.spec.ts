@@ -118,7 +118,7 @@ async function fillEmployeeName(page: Page) {
   return { firstName, middleName, lastName };
 }
 
-test.describe('Fitur PIM', { tag: '@positive' }, () => {
+test.describe('Fitur PIM', { tag: ['@positive', '@functional'] }, () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await openPim(page);
@@ -198,7 +198,7 @@ test.describe('Fitur PIM', { tag: '@positive' }, () => {
   });
 });
 
-test.describe('Fitur PIM - Reports', { tag: '@positive' }, () => {
+test.describe('Fitur PIM - Reports', { tag: ['@positive', '@functional'] }, () => {
   test('User add new Report Employee', async ({ page }) => {
     const reportName = `Report QA ${Date.now()}`;
 
@@ -267,7 +267,7 @@ async function firstEmployeeId(page: Page) {
   return id as string;
 }
 
-test.describe('Fitur PIM - Negatif case', { tag: '@negative' }, () => {
+test.describe('Fitur PIM - Negatif case', { tag: ['@negative', '@validation'] }, () => {
   test('User add new employee with Employee Id already exists', async ({ page }) => {
     await login(page);
     await openPim(page);

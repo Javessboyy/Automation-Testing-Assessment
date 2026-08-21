@@ -93,7 +93,7 @@ async function searchUser(page: Page, name: string) {
 }
 
 // Serial: Add -> Edit -> Delete bekerja pada user yang sama.
-test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () => {
+test.describe.serial('Fitur Admin - User Management', { tag: ['@positive', '@functional'] }, () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await openAdmin(page);
@@ -175,7 +175,7 @@ test.describe.serial('Fitur Admin - User Management', { tag: '@positive' }, () =
   });
 });
 
-test.describe('Fitur Admin - Job', { tag: '@positive' }, () => {
+test.describe('Fitur Admin - Job', { tag: ['@positive', '@functional'] }, () => {
   test('User Add Job Category', async ({ page }) => {
     const categoryName = `Kategori QA ${Date.now()}`;
 
@@ -205,9 +205,70 @@ test.describe('Fitur Admin - Job', { tag: '@positive' }, () => {
     await expect(page).toHaveURL(/\/admin\/jobCategory/, { timeout: 30_000 });
     await expect(page.locator('.oxd-table-card', { hasText: categoryName })).toBeVisible();
   });
+
+  test('User add Pay Grades', async ({ page }) => {
+    const gradeName = `QA Grade ${Date.now()}`;
+
+    await login(page);
+    await openAdmin(page);
+
+    // Klik menu Job -> Pay Grades (dropdown di topbar)
+    await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
+    await page.getByRole('menuitem', { name: 'Pay Grades' }).click();
+    await expect(page).toHaveURL(/\/admin\/viewPayGrades/);
+    await expect(page.getByRole('heading', { name: 'Pay Grades' })).toBeVisible();
+
+    // Klik button Add
+    await page.getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('heading', { name: 'Add Pay Grade' })).toBeVisible();
+
+    // Input Name (random supaya tidak bentrok dengan pay grade yang sudah ada)
+    await fieldByLabel(page, 'Name').locator('input').fill(gradeName);
+
+    // Klik button Save
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    // Verifikasi: Save di sini tidak menampilkan toast sukses — sistem langsung
+    // redirect ke halaman Edit Pay Grade-nya (beda dari Job Category).
+    await expect(page).toHaveURL(/\/admin\/payGrade\/\d+/, { timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'Edit Pay Grade' })).toBeVisible();
+
+    // Pay grade baru juga harus tercatat di list
+    await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
+    await page.getByRole('menuitem', { name: 'Pay Grades' }).click();
+    await expect(page.locator('.oxd-table-card', { hasText: gradeName })).toBeVisible();
+  });
+
+  test('User add new Employment Status', async ({ page }) => {
+    const statusName = `QA Status ${Date.now()}`;
+
+    await login(page);
+    await openAdmin(page);
+
+    // Klik menu Job -> Employment Status (dropdown di topbar)
+    await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
+    await page.getByRole('menuitem', { name: 'Employment Status' }).click();
+    await expect(page).toHaveURL(/\/admin\/employmentStatus/);
+    await expect(page.getByRole('heading', { name: 'Employment Status' })).toBeVisible();
+
+    // Klik button Add
+    await page.getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('heading', { name: 'Add Employment Status' })).toBeVisible();
+
+    // Input Name (random supaya tidak bentrok dengan status yang sudah ada)
+    await fieldByLabel(page, 'Name').locator('input').fill(statusName);
+
+    // Klik button Save
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    // Verifikasi: toast sukses dan status baru muncul di list
+    await expect(page.locator('.oxd-toast')).toContainText(/Successfully Saved/i, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/admin\/employmentStatus/, { timeout: 30_000 });
+    await expect(page.locator('.oxd-table-card', { hasText: statusName })).toBeVisible();
+  });
 });
 
-test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
+test.describe('Fitur Admin - Negatif case', { tag: ['@negative', '@validation'] }, () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await openAdmin(page);
@@ -284,7 +345,7 @@ test.describe('Fitur Admin - Negatif case', { tag: '@negative' }, () => {
   });
 });
 
-test.describe('Fitur Admin - Negatif case Work Shift', { tag: '@negative' }, () => {
+test.describe('Fitur Admin - Negatif case Work Shift', { tag: ['@negative', '@validation'] }, () => {
   test('User set To working hours input before from time', async ({ page }) => {
     await login(page);
     await openAdmin(page);
@@ -310,6 +371,52 @@ test.describe('Fitur Admin - Negatif case Work Shift', { tag: '@negative' }, () 
     // System menampilkan validasi
     await expect(page.locator('.oxd-input-field-error-message')).toHaveText(
       'To time should be after from time',
+    );
+  });
+});
+
+test.describe('Fitur Admin - Negatif case Job', { tag: ['@negative', '@validation'] }, () => {
+  test('Submit form without entering Job Title', async ({ page }) => {
+    await login(page);
+    await openAdmin(page);
+
+    // Klik menu Job -> Job Titles
+    await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
+    await page.getByRole('menuitem', { name: 'Job Titles' }).click();
+    await expect(page).toHaveURL(/\/admin\/viewJobTitleList/);
+
+    // Klik button Add
+    await page.getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('heading', { name: 'Add Job Title' })).toBeVisible();
+
+    // Langsung Save tanpa mengisi Job Title
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    // System menampilkan validasi
+    await expect(fieldByLabel(page, 'Job Title').locator('.oxd-input-field-error-message')).toHaveText(
+      'Required',
+    );
+  });
+
+  test('Submit form without entering name Employment Status', async ({ page }) => {
+    await login(page);
+    await openAdmin(page);
+
+    // Klik menu Job -> Employment Status
+    await page.locator('.oxd-topbar-body-nav-tab', { hasText: 'Job' }).first().click();
+    await page.getByRole('menuitem', { name: 'Employment Status' }).click();
+    await expect(page).toHaveURL(/\/admin\/employmentStatus/);
+
+    // Klik button Add
+    await page.getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('heading', { name: 'Add Employment Status' })).toBeVisible();
+
+    // Langsung Save tanpa mengisi Name
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    // System menampilkan validasi
+    await expect(fieldByLabel(page, 'Name').locator('.oxd-input-field-error-message')).toHaveText(
+      'Required',
     );
   });
 });
