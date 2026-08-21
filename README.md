@@ -68,14 +68,17 @@ npx allure generate allure-results --single-file --clean -o allure-report-single
 
 ```
 tests/
-  login.spec.ts         Login flows (positive + negative)
-  admin.spec.ts          Admin > User Management, Job (Job Categories, Pay Grades,
-                          Employment Status, Job Titles, Work Shifts)
-  pim.spec.ts             PIM > Employee, Reports
+  login.spec.ts          Login flows (positive + negative)
+  admin.spec.ts           Admin > User Management (add/edit/delete user, serial),
+                          Job (add Job Category, Pay Grades, Employment Status;
+                          validation for Job Title and Work Shift)
+  pim.spec.ts             PIM > Employee (add employee, add user login), Reports
   leave.spec.ts           Leave > Assign Leave
   recruitment.spec.ts    Recruitment > Candidates, Vacancies
   claim.spec.ts           Claim > Assign Claim
 playwright.config.ts    Playwright + reporter configuration
+.github/workflows/
+  playwright.yml         CI pipeline (see CI/CD below)
 ```
 
 Each test is tagged with a combination of `@positive`/`@negative` and `@functional`/`@validation`, e.g.:
@@ -89,3 +92,4 @@ test.describe('Fitur Claim', { tag: ['@positive', '@functional'] }, () => { ... 
 - Base URL and demo login credentials (`Admin` / `admin123`) are the public OrangeHRM demo's own defaults — nothing sensitive is stored in this repo.
 - Test data (usernames, employee names, claim remarks, etc.) is randomized per run to avoid collisions with existing demo data and with previous runs.
 - `allure-results/`, `allure-report/`, `playwright-report/`, and `test-results/` are generated output and are git-ignored.
+- `tests/admin.spec.ts`'s `Fitur Admin - User Management` block uses `test.describe.serial` because Add → Edit → Delete operate on the same user — run those three tests together (not individually with `-g`) if you need them to pass.
