@@ -29,9 +29,27 @@ async function fillDate(input: Locator, date: Date) {
   return value;
 }
 
-const daysFromToday = (days: number) => {
+const isWeekend = (date: Date) => date.getDay() === 0 || date.getDay() === 6;
+
+/**
+ * Hari kerja ke-n dihitung mulai hari ini (n=0 -> hari kerja pertama mulai hari
+ * ini, n=1 -> hari kerja berikutnya sesudah itu, dst — Sabtu/Minggu dilompati).
+ * OrangeHRM menolak leave request yang tanggalnya sama sekali tidak beririsan
+ * hari kerja ("No Working Days Selected"). Test ini dulu pakai daysFromToday(0)
+ * dan daysFromToday(1) ("hari ini"/"besok"), yang selalu gagal kalau kebetulan
+ * dijalankan pas weekend karena keduanya jatuh di Sabtu & Minggu.
+ */
+const workday = (n: number) => {
   const date = new Date();
-  date.setDate(date.getDate() + days);
+  const skipWeekend = () => {
+    if (isWeekend(date)) date.setDate(date.getDate() + (date.getDay() === 6 ? 2 : 1));
+  };
+
+  skipWeekend();
+  for (let i = 0; i < n; i++) {
+    date.setDate(date.getDate() + 1);
+    skipWeekend();
+  }
   return date;
 };
 
@@ -173,8 +191,8 @@ test.describe('Fitur Leave', { tag: ['@positive', '@functional'] }, () => {
     // Leave Type
     await selectOption(page, 'Leave Type', LEAVE_TYPE);
 
-    // From Date hari ini, To Date besok
-    await setDateRange(page, daysFromToday(0), daysFromToday(1));
+    // From Date & To Date dua hari kerja berturut-turut
+    await setDateRange(page, workday(0), workday(1));
 
     // Rentang lebih dari sehari -> yang muncul field Partial Days, bukan Duration.
     // Dibiarkan default (tanpa partial) supaya semua harinya dihitung full day.
@@ -187,8 +205,8 @@ test.describe('Fitur Leave', { tag: ['@positive', '@functional'] }, () => {
     await pickEmployee(page, employee.firstName, employee.fullName);
     await selectOption(page, 'Leave Type', LEAVE_TYPE);
 
-    // From Date dan To Date sama-sama hari ini
-    await setDateRange(page, daysFromToday(0), daysFromToday(0));
+    // From Date dan To Date sama-sama hari kerja terdekat
+    await setDateRange(page, workday(0), workday(0));
 
     // Cuti sehari -> system menampilkan field Duration
     await expect(fieldByLabel(page, 'Duration')).toBeVisible();
@@ -201,8 +219,8 @@ test.describe('Fitur Leave', { tag: ['@positive', '@functional'] }, () => {
     await pickEmployee(page, employee.firstName, employee.fullName);
     await selectOption(page, 'Leave Type', LEAVE_TYPE);
 
-    // From Date hari ini, To Date dua hari ke depan
-    await setDateRange(page, daysFromToday(0), daysFromToday(2));
+    // From Date hari kerja terdekat, To Date dua hari kerja setelahnya
+    await setDateRange(page, workday(0), workday(2));
 
     // System menampilkan Partial Days -> pilih Start Day Only
     await expect(fieldByLabel(page, 'Partial Days')).toBeVisible();
